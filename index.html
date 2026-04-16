@@ -3,59 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkSynth | Prototype Repository</title>
+    <title>LinkSynth | Prototype Repo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>LinkSynth Builder</h1>
-        <p>Gather assets and synthesize them into a live prototype.</p>
+        <p>Gather assets and synthesize prototypes in real-time.</p>
     </header>
 
     <main class="container">
-        <section id="input-area" class="card">
+        <section class="card">
             <h3>Add New Asset Link</h3>
             <div class="input-group">
-                <input type="text" id="linkInput" placeholder="https://example.com/asset-or-theme">
+                <input type="text" id="linkInput" placeholder="Paste CSS or Image URL here...">
                 <select id="assetType">
-                    <option value="theme">Theme/CSS</option>
+                    <option value="theme">Theme (CSS)</option>
                     <option value="image">Image Asset</option>
                 </select>
-                <button id="addBtn">Save to Repository</button>
+                <button id="addBtn">Save to Repo</button>
             </div>
             <div id="linkList" class="grid"></div>
         </section>
 
-        <section class="toolbelt card">
-            <h3>Design Controls & Stickers</h3>
+        <section class="card">
+            <h3>Creative Toolbelt</h3>
             <div class="input-group">
-                <input type="color" id="colorPicker" title="Background Color">
+                <input type="color" id="colorPicker" title="Canvas Background">
                 <select id="fontPicker">
-                    <option value="'Inter', sans-serif">Modern Sans</option>
-                    <option value="'Playfair Display', serif">Classic Serif</option>
+                    <option value="sans-serif">Modern Sans</option>
+                    <option value="serif">Classic Serif</option>
+                    <option value="monospace">Mono</option>
                 </select>
+                <button onclick="document.getElementById('imageImporter').click()">+ Upload File</button>
                 <input type="file" id="imageImporter" accept="image/*" style="display:none">
-                <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
             </div>
             
-            <div class="sticker-panel" style="margin-top: 15px;">
-                <button class="sticker-btn" data-src="⭐">⭐</button>
-                <button class="sticker-btn" data-src="🚀">🚀</button>
-                <input type="text" id="gifSearch" placeholder="Search Giphy..." style="width:150px; margin-left:10px;">
-                <button id="searchGifBtn">Find GIF</button>
-                <div id="gifResults" style="display:flex; gap:5px; margin-top:10px; overflow-x:auto;"></div>
+            <div class="sticker-panel">
+                <div class="sticker-row">
+                    <button class="sticker-btn" data-val="⭐">⭐</button>
+                    <button class="sticker-btn" data-val="🚀">🚀</button>
+                    <button class="sticker-btn" data-val="🔥">🔥</button>
+                    <button class="sticker-btn" data-val="✨">✨</button>
+                </div>
+                <div class="gif-search-box">
+                    <input type="text" id="gifSearch" placeholder="Search Giphy...">
+                    <button id="searchGifBtn">Find GIFs</button>
+                </div>
+                <div id="gifResults" class="gif-scroll"></div>
             </div>
         </section>
 
         <section id="preview-area">
             <div class="preview-header">
                 <h2>Live Prototype Canvas</h2>
-                <button id="generateBtn">Apply Repository Themes</button>
+                <button id="applyThemeBtn">Apply Repository Themes</button>
             </div>
-            <div id="previewContainer">
-                <div id="canvas">
-                    <p class="placeholder-text">Drag items here or click "Apply" to sync styles.</p>
-                </div>
+            <div id="canvas">
+                <p class="placeholder-text">Drag assets here. Click "Apply" to sync styles.</p>
             </div>
         </section>
     </main>
