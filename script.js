@@ -5,7 +5,7 @@ let activeElement = null;
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Supabase (Use your actual credentials here)
     const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-    const SUPABASE_KEY = 'YOUR_KEY_HERE';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
     sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // 2. Add to Repository Logic
