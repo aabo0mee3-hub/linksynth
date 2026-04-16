@@ -1,81 +1,26 @@
-let sbClient;
-let repository = [];
-let activeElement = null;
+:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Supabase (Use your actual credentials here)
-    const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+.container { max-width: 900px; margin: 0 auto; }
+.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
 
-    // 2. Add to Repository Logic
-    document.getElementById('addBtn').onclick = async () => {
-        const url = document.getElementById('linkInput').value;
-        const type = document.getElementById('assetType').value;
-        if (!url) return;
+.input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+input, select, button { padding: 12px; border-radius: 8px; border: none; font-size: 14px; }
+input, select { background: #0f172a; color: white; border: 1px solid #334155; flex: 1; }
+button { background: var(--primary); color: white; cursor: pointer; font-weight: 600; transition: 0.2s; }
+button:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        const entry = { url, type };
-        repository.push(entry);
-        renderRepository();
-        await sbClient.from('links').insert([entry]);
-        document.getElementById('linkInput').value = "";
-    };
+.sticker-panel { border-top: 1px solid #334155; padding-top: 15px; margin-top: 10px; }
+.sticker-row { margin-bottom: 15px; display: flex; gap: 10px; }
+.gif-search-box { display: flex; gap: 5px; }
+.gif-scroll { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; min-height: 70px; padding-bottom: 10px; }
 
-    // 3. GIF Search (Giphy Public API Key for testing)
-    document.getElementById('searchGifBtn').onclick = async () => {
-        const query = document.getElementById('gifSearch').value;
-        const resp = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=${query}&limit=5`);
-        const { data } = await resp.json();
-        const resultsDiv = document.getElementById('gifResults');
-        resultsDiv.innerHTML = data.map(g => `<img src="${g.images.fixed_height_small.url}" class="gif-result" style="height:50px; cursor:pointer;">`).join('');
-        
-        document.querySelectorAll('.gif-result').forEach(img => {
-            img.onclick = () => createDraggable(img.src, 'img');
-        });
-    };
-
-    // 4. Create Draggable Elements
-    function createDraggable(content, type) {
-        const el = document.createElement(type === 'img' ? 'img' : 'div');
-        if(type === 'img') el.src = content; else el.innerText = content;
-        el.className = 'draggable-asset';
-        if(type !== 'img') el.style.fontSize = '3rem';
-        
-        el.onmousedown = (e) => { activeElement = el; el.style.zIndex = 1000; };
-        document.getElementById('canvas').appendChild(el);
-    }
-
-    // Drag Logic
-    document.onmousemove = (e) => {
-        if (!activeElement) return;
-        const rect = document.getElementById('canvas').getBoundingClientRect();
-        activeElement.style.left = (e.clientX - rect.left - 30) + 'px';
-        activeElement.style.top = (e.clientY - rect.top - 30) + 'px';
-    };
-    document.onmouseup = () => { activeElement = null; };
-
-    // 5. Theme Controls
-    document.getElementById('colorPicker').oninput = (e) => {
-        document.getElementById('canvas').style.backgroundColor = e.target.value;
-    };
-    document.getElementById('fontPicker').onchange = (e) => {
-        document.getElementById('canvas').style.fontFamily = e.target.value;
-    };
-
-    // Sticker Buttons
-    document.querySelectorAll('.sticker-btn').forEach(btn => {
-        btn.onclick = () => createDraggable(btn.dataset.src, 'div');
-    });
-
-    // Local Image Upload
-    document.getElementById('imageImporter').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => createDraggable(ev.target.result, 'img');
-        reader.readAsDataURL(e.target.files[0]);
-    };
-});
-
-function renderRepository() {
-    const list = document.getElementById('linkList');
-    list.innerHTML = repository.map(item => `<div class="link-card"><strong>${item.type}</strong><br>${item.url.substring(0,20)}...</div>`).join('');
+#canvas { 
+    position: relative; background: white; min-height: 500px; border-radius: 15px; 
+    color: #333; overflow: hidden; border: 4px solid var(--primary); 
 }
+
+.draggable-asset { position: absolute; cursor: move; user-select: none; max-width: 120px; z-index: 10; }
+.grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.link-card { background: #334155; padding: 10px; border-radius: 8px; font-size: 11px; max-width: 150px; }
+.placeholder-text { text-align: center; margin-top: 200px; color: #94a3b8; font-style: italic; }
