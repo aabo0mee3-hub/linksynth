@@ -49,6 +49,42 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
+    <script src="script.js"></script><section class="toolbelt card">
+    <h3>Design Controls</h3>
+    <div class="input-group">
+        <input type="color" id="colorPicker" title="Canvas Border Color">
+        <select id="fontPicker">
+            <option value="'Inter', sans-serif">Modern Sans</option>
+            <option value="'Playfair Display', serif">Classic Serif</option>
+            <option value="'Courier New', monospace">Technical Mono</option>
+        </select>
+        <input type="file" id="imageImporter" accept="image/*" style="display:none">
+        <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
+    </div>
+    
+    <div class="sticker-panel" style="margin-top: 15px;">
+        <span>Stickers: </span>
+        <button class="sticker-btn" data-src="⭐">⭐</button>
+        <button class="sticker-btn" data-src="🚀">🚀</button>
+        <button class="sticker-btn" data-src="🔥">🔥</button>
+        <span style="margin-left:10px">GIFs: </span>
+        <button class="sticker-btn" data-src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueHByZzVibm54bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4bmZ4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxxZESp5p1C/giphy.gif">Sample GIF</button>
+    </div>
+</section>
+
+<section id="preview-area">
+    <div class="preview-header">
+        <h2>Live Prototype Canvas</h2>
+        <button id="generateBtn">Sync Formatting</button>
+    </div>
+    <div id="previewContainer">
+        <div id="canvas">
+             <p class="placeholder-text">Drag assets here or click "Sync" to apply styles.</p>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
