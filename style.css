@@ -75,3 +75,35 @@ button.secondary { background: #64748b; margin-top: 10px; }
 }
 
 .placeholder-text { color: #94a3b8; text-align: center; margin-top: 150px; }
+/* ... (Keep previous styles) ... */
+
+/* REVISED: Canvas needs to be relative for absolute-positioned draggables */
+#canvas {
+    position: relative; 
+    background: white;
+    min-height: 600px;
+    border: 2px dashed #cbd5e1;
+    overflow: hidden; /* Keeps stickers inside the box */
+}
+
+/* ADDED: Draggable Element Styles */
+.draggable-asset {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+    max-width: 150px;
+    transition: transform 0.1s;
+}
+
+.draggable-asset:hover {
+    outline: 2px solid var(--primary);
+}
+
+.sticker-btn {
+    background: #334155;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
