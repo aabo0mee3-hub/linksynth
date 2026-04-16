@@ -83,3 +83,89 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
+// FIX: Renamed 'supabase' to 'sbClient' to avoid conflict with the library's global object
+let sbClient;
+let repository = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    // INITIALIZATION
+    const SUPABASE_URL = 'YOUR_URL_HERE';
+    const SUPABASE_KEY = 'YOUR_KEY_HERE';
+    
+    // FIX: Using window.supabase to access the library, assigning to sbClient
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- FEATURE: DRAG & DROP ENGINE ---
+    let activeElement = null;
+
+    function makeDraggable(el) {
+        el.onmousedown = (e) => {
+            activeElement = el;
+            el.style.zIndex = 1000;
+        };
+    }
+
+    document.onmousemove = (e) => {
+        if (!activeElement) return;
+        const rect = document.getElementById('canvas').getBoundingClientRect();
+        // Calculate position relative to the canvas
+        activeElement.style.left = (e.clientX - rect.left - 25) + 'px';
+        activeElement.style.top = (e.clientY - rect.top - 25) + 'px';
+    };
+
+    document.onmouseup = () => { activeElement = null; };
+
+    // --- FEATURE: STICKERS & GIFS ---
+    document.querySelectorAll('.sticker-btn').forEach(btn => {
+        btn.onclick = () => {
+            const isImg = btn.dataset.src.startsWith('http');
+            const el = document.createElement(isImg ? 'img' : 'div');
+            if(isImg) el.src = btn.dataset.src;
+            else el.innerText = btn.dataset.src;
+            
+            el.className = 'draggable-asset';
+            el.style.fontSize = '3rem';
+            document.getElementById('canvas').appendChild(el);
+            makeDraggable(el);
+        };
+    });
+
+    // --- FEATURE: LOCAL IMAGE IMPORT ---
+    document.getElementById('imageImporter').onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.className = 'draggable-asset';
+            document.getElementById('canvas').appendChild(img);
+            makeDraggable(img);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // --- REVISED REPOSITORY LOGIC ---
+    document.getElementById('addBtn').onclick = async () => {
+        const url = document.getElementById('linkInput').value;
+        const type = document.getElementById('assetType').value;
+        if (!url) return;
+
+        const entry = { url, type };
+        repository.push(entry);
+        renderRepository(); // Helper function to refresh list
+        
+        // Save to Supabase using sbClient
+        const { error } = await sbClient.from('links').insert([entry]);
+        if (error) console.error("Sync Error:", error.message);
+    };
+
+    // --- THEME PICKERS ---
+    document.getElementById('colorPicker').oninput = (e) => {
+        document.getElementById('canvas').style.backgroundColor = e.target.value;
+    };
+    document.getElementById('fontPicker').onchange = (e) => {
+        document.getElementById('canvas').style.fontFamily = e.target.value;
+    };
+});
+
+// ... (renderRepository and Cookie helper functions from previous versions) ...
