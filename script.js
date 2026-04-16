@@ -1,7 +1,7 @@
 // Supabase Configuration (Placeholders)
 const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // DOM Elements
 const linkInput = document.getElementById('linkInput');
