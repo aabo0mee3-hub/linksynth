@@ -1,26 +1,102 @@
-:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
+// --- CONFIGURATION ---
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A'; // MUST replace this with your actual key!
 
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-.container { max-width: 900px; margin: 0 auto; }
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
+let client;
+let repoItems = [];
+let draggedEl = null;
 
-.input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-input, select, button { padding: 12px; border-radius: 8px; border: none; font-size: 14px; }
-input, select { background: #0f172a; color: white; border: 1px solid #334155; flex: 1; }
-button { background: var(--primary); color: white; cursor: pointer; font-weight: 600; transition: 0.2s; }
-button:hover { opacity: 0.9; transform: translateY(-1px); }
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Initialize
+    client = window.supabase.createClient(SB_URL, SB_KEY);
 
-.sticker-panel { border-top: 1px solid #334155; padding-top: 15px; margin-top: 10px; }
-.sticker-row { margin-bottom: 15px; display: flex; gap: 10px; }
-.gif-search-box { display: flex; gap: 5px; }
-.gif-scroll { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; min-height: 70px; padding-bottom: 10px; }
+    // 2. Fetch existing data from Supabase
+    const { data, error } = await client.from('Links').select('*');
+    if (data) { repoItems = data; renderRepo(); }
 
-#canvas { 
-    position: relative; background: white; min-height: 500px; border-radius: 15px; 
-    color: #333; overflow: hidden; border: 4px solid var(--primary); 
+    // 3. Save to Repository
+    document.getElementById('addBtn').onclick = async () => {
+        const urlVal = document.getElementById('linkInput').value;
+        const typeVal = document.getElementById('assetType').value;
+        if (!urlVal) return alert("Enter a URL first!");
+
+        const newEntry = { url: urlVal, type: typeVal };
+        repoItems.push(newEntry);
+        renderRepo();
+
+        const { error: insErr } = await client.from('Links').insert([newEntry]);
+        if (insErr) console.error("Database Error:", insErr.message);
+        document.getElementById('linkInput').value = "";
+    };
+
+    // 4. Giphy Search Engine
+    document.getElementById('searchGifBtn').onclick = async () => {
+        const query = document.getElementById('gifSearch').value;
+        const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&q=${query}&limit=8`);
+        const { data } = await response.json();
+        const results = document.getElementById('gifResults');
+        results.innerHTML = data.map(g => `<img src="${g.images.fixed_height_small.url}" class="gif-opt" style="height:60px; border-radius:4px; cursor:pointer;">`).join('');
+        
+        document.querySelectorAll('.gif-opt').forEach(img => {
+            img.onclick = () => spawnDraggable(img.src, 'img');
+        });
+    };
+
+    // 5. Drag & Drop Mechanics
+    function spawnDraggable(content, kind) {
+        const el = document.createElement(kind === 'img' ? 'img' : 'div');
+        kind === 'img' ? el.src = content : el.innerText = content;
+        el.className = 'draggable-asset';
+        if(kind !== 'img') el.style.fontSize = '3.5rem';
+        
+        el.onmousedown = (e) => { draggedEl = el; el.style.zIndex = 1000; };
+        document.getElementById('canvas').appendChild(el);
+    }
+
+    document.onmousemove = (e) => {
+        if (!draggedEl) return;
+        const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+        draggedEl.style.left = (e.clientX - canvasRect.left - 25) + 'px';
+        draggedEl.style.top = (e.clientY - canvasRect.top - 25) + 'px';
+    };
+    document.onmouseup = () => { draggedEl = null; };
+
+    // 6. Customization Triggers
+    document.getElementById('colorPicker').oninput = (e) => {
+        document.getElementById('canvas').style.backgroundColor = e.target.value;
+    };
+    document.getElementById('fontPicker').onchange = (e) => {
+        document.getElementById('canvas').style.fontFamily = e.target.value;
+    };
+    document.querySelectorAll('.sticker-btn').forEach(btn => {
+        btn.onclick = () => spawnDraggable(btn.dataset.val, 'text');
+    });
+    document.getElementById('imageImporter').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (f) => spawnDraggable(f.target.result, 'img');
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    // 7. Theme Applier (Prototype logic)
+    document.getElementById('applyThemeBtn').onclick = () => {
+        repoItems.forEach(item => {
+            if (item.type === 'theme') {
+                const linkTag = document.createElement('link');
+                linkTag.rel = 'stylesheet';
+                linkTag.href = item.url;
+                document.head.appendChild(linkTag);
+                alert("Theme Applied to Global View!");
+            }
+        });
+    };
+});
+
+function renderRepo() {
+    const list = document.getElementById('linkList');
+    list.innerHTML = repoItems.map(i => `
+        <div class="link-card">
+            <strong>${i.type.toUpperCase()}</strong><br>
+            <span title="${i.url}">${i.url.substring(0,18)}...</span>
+        </div>
+    `).join('');
 }
-
-.draggable-asset { position: absolute; cursor: move; user-select: none; max-width: 120px; z-index: 10; }
-.grid { display: flex; gap: 10px; flex-wrap: wrap; }
-.link-card { background: #334155; padding: 10px; border-radius: 8px; font-size: 11px; max-width: 150px; }
-.placeholder-text { text-align: center; margin-top: 200px; color: #94a3b8; font-style: italic; }
