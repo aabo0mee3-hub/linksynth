@@ -2,48 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkSynth | Prototype Repository</title>
+    <title>LinkSynth | Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>LinkSynth Builder</h1>
-        <p>Gather assets, themed links, and generate rapid prototypes.</p>
-    </header>
-
     <main class="container">
-        <section id="input-area">
-            <div class="card">
-                <h3>Add New Asset Link</h3>
-                <div class="input-group">
-                    <input type="text" id="linkInput" placeholder="https://example.com/asset-or-theme">
-                    <select id="assetType">
-                        <option value="theme">Theme/CSS</option>
-                        <option value="image">Image Asset</option>
-                        <option value="reference">Reference Site</option>
-                    </select>
-                    <button id="addBtn">Add to Repository</button>
-                </div>
+        <section class="card">
+            <h3>Add Asset (Use https://)</h3>
+            <div class="input-group">
+                <input type="text" id="linkInput" placeholder="https://cdn.example.com/style.css">
+                <select id="assetType">
+                    <option value="theme">Theme (CSS)</option>
+                    <option value="image">Image URL</option>
+                </select>
+                <button id="addBtn">Save to Repo</button>
             </div>
+            <div id="linkList" class="grid"></div>
         </section>
 
-        <section id="repository">
-            <h2>Current Repository</h2>
-            <div id="linkList" class="grid">
+        <section class="card">
+            <h3>Creative Tools</h3>
+            <div class="input-group">
+                <input type="color" id="colorPicker">
+                <select id="fontPicker">
+                    <option value="sans-serif">Modern</option>
+                    <option value="serif">Classic</option>
+                </select>
+                <button onclick="document.getElementById('imageImporter').click()">+ Upload</button>
+                <input type="file" id="imageImporter" style="display:none">
+            </div>
+            <div class="sticker-panel">
+                <div class="sticker-row">
+                    <button class="sticker-btn" data-val="⭐">⭐</button>
+                    <button class="sticker-btn" data-val="🚀">🚀</button>
                 </div>
-            <button id="clearBtn" class="secondary">Clear Session</button>
+                <div class="gif-search-box">
+                    <input type="text" id="gifSearch" placeholder="Search Giphy...">
+                    <button id="searchGifBtn">Find GIFs</button>
+                </div>
+                <div id="gifResults" class="gif-scroll"></div>
+            </div>
         </section>
 
         <section id="preview-area">
-            <div class="preview-header">
-                <h2>Prototype Preview</h2>
-                <button id="generateBtn">Generate Test Page</button>
-            </div>
-            <div id="previewContainer">
-                <div id="canvas">
-                    <p class="placeholder-text">Click "Generate" to import formatting and links into this canvas.</p>
-                </div>
+            <button id="applyThemeBtn">Apply Repository Themes</button>
+            <div id="canvas">
+                <p class="placeholder-text">Drag assets here.</p>
             </div>
         </section>
     </main>
