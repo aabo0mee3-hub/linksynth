@@ -1,85 +1,81 @@
-// Supabase Configuration (Placeholders)
-const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'YOUR_SUPABASE_KEY'; // Replace this!
+const GIPHY_API_KEY = 'dc6zaTOxFJmzC'; // Public Beta Key
 
-// DOM Elements
-const linkInput = document.getElementById('linkInput');
-const assetType = document.getElementById('assetType');
-const addBtn = document.getElementById('addBtn');
-const linkList = document.getElementById('linkList');
-const generateBtn = document.getElementById('generateBtn');
-const canvas = document.getElementById('canvas');
+let client, repoItems = [], draggedEl = null;
 
-let repository = [];
+document.addEventListener('DOMContentLoaded', async () => {
+    client = window.supabase.createClient(SB_URL, SB_KEY);
 
-// 1. Initialize: Check Cookies/Local Storage
-window.onload = () => {
-    const savedData = getCookie("repo_session");
-    if (savedData) {
-        repository = JSON.parse(savedData);
-        renderRepository();
+    // FIX: Load existing data
+    const { data } = await client.from('Links').select('*');
+    if (data) { repoItems = data; renderRepo(); }
+
+    // SAVE LOGIC: Checks for https://
+    document.getElementById('addBtn').onclick = async () => {
+        let url = document.getElementById('linkInput').value;
+        const type = document.getElementById('assetType').value;
+        
+        // FIX: If user forgets https://, add it automatically
+        if (!url.startsWith('http')) {
+            url = 'https://' + url;
+        }
+
+        const entry = { url, type };
+        repoItems.push(entry);
+        renderRepo();
+        await client.from('Links').insert([entry]);
+        document.getElementById('linkInput').value = "";
+    };
+
+    // GIPHY API TOOL
+    document.getElementById('searchGifBtn').onclick = async () => {
+        const q = document.getElementById('gifSearch').value;
+        const resp = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${q}&limit=10`);
+        const { data } = await resp.json();
+        const results = document.getElementById('gifResults');
+        results.innerHTML = data.map(g => `<img src="${g.images.fixed_height_small.url}" class="gif-opt" style="height:70px; cursor:pointer;">`).join('');
+        
+        document.querySelectorAll('.gif-opt').forEach(img => {
+            img.onclick = () => spawnDraggable(img.src, 'img');
+        });
+    };
+
+    // DRAG LOGIC
+    function spawnDraggable(content, kind) {
+        const el = document.createElement(kind === 'img' ? 'img' : 'div');
+        kind === 'img' ? el.src = content : el.innerText = content;
+        el.className = 'draggable-asset';
+        if(kind !== 'img') el.style.fontSize = '3rem';
+        el.onmousedown = () => { draggedEl = el; };
+        document.getElementById('canvas').appendChild(el);
     }
-};
 
-// 2. Add Link Logic
-addBtn.onclick = async () => {
-    const url = linkInput.value;
-    const type = assetType.value;
-    if (!url) return alert("Please enter a URL");
+    document.onmousemove = (e) => {
+        if (!draggedEl) return;
+        const rect = document.getElementById('canvas').getBoundingClientRect();
+        draggedEl.style.left = (e.clientX - rect.left - 20) + 'px';
+        draggedEl.style.top = (e.clientY - rect.top - 20) + 'px';
+    };
+    document.onmouseup = () => { draggedEl = null; };
 
-    const entry = { url, type, timestamp: new Date() };
-    repository.push(entry);
-    
-    // Save to Cookies (30 day expiry)
-    setCookie("repo_session", JSON.stringify(repository), 30);
-    
-    // Save to Supabase
-    const { data, error } = await supabase.from('links').insert([entry]);
-    
-    renderRepository();
-    linkInput.value = "";
-};
+    // APPLY THEME LOGIC
+    document.getElementById('applyThemeBtn').onclick = () => {
+        repoItems.forEach(item => {
+            if (item.type === 'theme') {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = item.url;
+                document.head.appendChild(link);
+            }
+        });
+    };
 
-// 3. Render Repository
-function renderRepository() {
-    linkList.innerHTML = repository.map(item => `
-        <div class="link-card">
-            <strong>${item.type.toUpperCase()}</strong><br>
-            ${item.url}
-        </div>
-    `).join('');
-}
+    // Design listeners
+    document.getElementById('colorPicker').oninput = (e) => document.getElementById('canvas').style.backgroundColor = e.target.value;
+    document.getElementById('fontPicker').onchange = (e) => document.getElementById('canvas').style.fontFamily = e.target.value;
+});
 
-// 4. Generate Prototype Logic
-generateBtn.onclick = () => {
-    canvas.innerHTML = `<h3>Generated Prototype</h3><p>Importing assets...</p>`;
-    
-    repository.forEach(item => {
-        if (item.type === 'theme') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = item.url;
-            canvas.appendChild(link);
-        }
-        if (item.type === 'image') {
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.style.width = "100px";
-            canvas.appendChild(img);
-        }
-    });
-};
-
-// Cookie Helper Functions
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
+function renderRepo() {
+    document.getElementById('linkList').innerHTML = repoItems.map(i => `<div class="link-card"><strong>${i.type}</strong><br>${i.url.substring(0,20)}...</div>`).join('');
 }
