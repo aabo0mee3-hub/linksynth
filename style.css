@@ -1,18 +1,31 @@
-/* ... (existing core styles) ... */
+/* ... keep previous core and preset styles ... */
 
-/* PRESET DEFINITIONS */
-#canvas.minimal { background: #f8fafc; border: 1px solid #e2e8f0; font-family: sans-serif; }
-
-#canvas.glass { 
-    background: rgba(255, 255, 255, 0.2); 
-    backdrop-filter: blur(10px); 
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+/* Editable Text Box Style */
+.draggable-text {
+    position: absolute;
+    min-width: 100px;
+    padding: 10px;
+    cursor: move;
+    border: 1px dashed transparent;
+    font-size: 1.2rem;
+    color: inherit;
+    outline: none;
 }
 
-#canvas.dark { background: #020617; color: #38bdf8; border-color: #1e293b; }
+.draggable-text:hover { border: 1px dashed #3b82f6; }
 
-#canvas.retro { background: #000; color: #0f0; font-family: 'Courier New', monospace; border: 2px solid #0f0; }
+.draggable-text:focus { border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
-/* Drag & Drop Positioning */
-.draggable-asset { position: absolute; cursor: move; user-select: none; max-width: 150px; z-index: 10; }
+/* Export Preview Styling */
+.export-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 2000;
+    width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
