@@ -1,63 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LinkSynth | Rapid Prototyper</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>LinkSynth Builder</h1>
-        <p>Synthesize prototypes with preset formats and live assets.</p>
-    </header>
+<main class="container">
+    <section class="card">
+        <h3>Quick Preset Formats</h3>
+        <div class="input-group">
+            <button class="preset-btn" data-theme="minimal">Minimalist</button>
+            <button class="preset-btn" data-theme="glass">Glassmorphism</button>
+            <button class="preset-btn" data-theme="dark">Midnight Dark</button>
+            <button class="preset-btn" data-theme="retro">Retro Terminal</button>
+        </div>
+    </section>
 
-    <main class="container">
-        <section class="card">
-            <h3>Add Asset (Include https://)</h3>
-            <div class="input-group">
-                <input type="text" id="linkInput" placeholder="https://cdn.example.com/style.css">
-                <select id="assetType">
-                    <option value="theme">Theme (CSS)</option>
-                    <option value="image">Image URL</option>
-                </select>
-                <button id="addBtn">Save to Repo</button>
-            </div>
-            <div id="linkList" class="grid"></div>
-        </section>
+    <section class="card">
+        <h3>Add Asset (Include https://)</h3>
+        <div class="input-group">
+            <input type="text" id="linkInput" placeholder="Paste CSS or Image URL...">
+            <select id="assetType">
+                <option value="theme">Theme (CSS)</option>
+                <option value="image">Image URL</option>
+            </select>
+            <button id="addBtn">Save to Repo</button>
+        </div>
+        <div id="linkList" class="grid"></div>
+    </section>
 
-        <section class="card">
-            <h3>Customization Toolbelt</h3>
-            <div class="input-group">
-                <input type="color" id="colorPicker" title="Canvas BG">
-                <select id="fontPicker">
-                    <option value="sans-serif">Modern Sans</option>
-                    <option value="serif">Classic Serif</option>
-                </select>
-                <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
-                <input type="file" id="imageImporter" style="display:none" accept="image/*">
+    <section class="card">
+        <h3>Creative Tools & GIFs</h3>
+        <div class="input-group">
+            <input type="color" id="colorPicker" title="Canvas BG">
+            <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
+            <input type="file" id="imageImporter" style="display:none" accept="image/*">
+        </div>
+        <div class="sticker-panel">
+            <div class="gif-search-box">
+                <input type="text" id="gifSearch" placeholder="Search Giphy...">
+                <button id="searchGifBtn">Find GIFs</button>
             </div>
-            
-            <div class="sticker-panel">
-                <div class="gif-search-box">
-                    <input type="text" id="gifSearch" placeholder="Search Giphy...">
-                    <button id="searchGifBtn">Find GIFs</button>
-                </div>
-                <div id="gifResults" class="gif-scroll"></div>
-            </div>
-        </section>
+            <div id="gifResults" class="gif-scroll"></div>
+        </div>
+    </section>
 
-        <section id="preview-area">
-            <div class="preview-header">
-                <h2>Live Prototype Canvas</h2>
-                <button id="applyThemeBtn">Apply Repo Formats</button>
-            </div>
-            <div id="canvas">
-                <p class="placeholder-text">Drag assets here. Click "Apply" to pull formats.</p>
-            </div>
-        </section>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+    <section id="preview-area">
+        <div class="preview-header">
+            <h2>Live Prototype Canvas</h2>
+            <button id="applyThemeBtn">Sync Repo Themes</button>
+        </div>
+        <div id="canvas">
+            <p class="placeholder-text">Drag assets here or apply presets.</p>
+        </div>
+    </section>
+</main>
