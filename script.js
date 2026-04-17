@@ -140,73 +140,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 document.addEventListener('DOMContentLoaded', async () => {
     // ... previous Supabase init and Drag logic ...
 
-    // 1. ADD TEXT BOX TOOL
+   // ... (Supabase initialization remains same) ...
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Text Box Tool
     document.getElementById('addTextBtn').onclick = () => {
-        const textEl = document.createElement('div');
-        textEl.className = 'draggable-text';
-        textEl.contentEditable = true;
-        textEl.innerText = "Edit this text...";
-        textEl.style.top = "50px";
-        textEl.style.left = "50px";
-        
-        // Make it draggable
-        textEl.onmousedown = (e) => { 
-            if(document.activeElement === textEl) return; // Allow typing
-            draggedEl = textEl; 
-        };
-        
-        document.getElementById('canvas').appendChild(textEl);
+        const txt = document.getElementById('textInput').value || "Edit this text";
+        spawnDraggable(txt, 'div', 'draggable-text');
+        document.getElementById('textInput').value = "";
     };
 
-    // 2. EXPORT CSS TOOL
+    // 2. Export Tool: Generates CSS/HTML based on canvas state
     document.getElementById('exportBtn').onclick = () => {
         const canvas = document.getElementById('canvas');
-        const currentTheme = canvas.className;
         const bgColor = canvas.style.backgroundColor || "white";
-        const font = canvas.style.fontFamily || "inherit";
+        const fontFamily = canvas.style.fontFamily || "sans-serif";
+        
+        let code = `/* LinkSynth Exported CSS */\n`;
+        code += `.canvas-mockup {\n  background-color: ${bgColor};\n  font-family: ${fontFamily};\n  position: relative;\n  height: 500px;\n}\n\n`;
+        
+        // Loop through all items on the canvas
+        document.querySelectorAll('.draggable-asset').forEach((el, index) => {
+            code += `.item-${index} {\n  position: absolute;\n  left: ${el.style.left};\n  top: ${el.style.top};\n}\n`;
+        });
 
-        // Compile the CSS code
-        const cssOutput = `
-/* LinkSynth Generated Styles */
-.custom-prototype-canvas {
-    background-color: ${bgColor};
-    font-family: ${font};
-    position: relative;
-    min-height: 500px;
-}
-
-/* Theme: ${currentTheme || 'Default'} */
-${getThemeCSS(currentTheme)}
-
-/* Element Positions */
-${compileElementPositions()}
-        `;
-
-        // Create a download link
-        const blob = new Blob([cssOutput], { type: 'text/css' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'prototype-styles.css';
-        a.click();
+        document.getElementById('codeOutput').value = code;
+        document.getElementById('exportModal').style.display = 'flex';
     };
 
-    function getThemeCSS(theme) {
-        const themes = {
-            glass: ".glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.2); border: 1px solid white; }",
-            dark: ".dark { background: #020617; color: #38bdf8; }",
-            retro: ".retro { background: #000; color: #0f0; font-family: monospace; }"
+    // 3. Updated Spawn Function
+    function spawnDraggable(content, kind, extraClass = '') {
+        const el = document.createElement(kind === 'img' ? 'img' : 'div');
+        if (kind === 'img') el.src = content; 
+        else {
+            el.innerText = content;
+            el.contentEditable = true; // Makes text boxes editable on the fly!
+        }
+        
+        el.className = `draggable-asset ${extraClass}`;
+        el.style.left = "50px";
+        el.style.top = "50px";
+        
+        el.onmousedown = (e) => { 
+            activeEl = el; 
+            el.style.zIndex = 1000; 
         };
-        return themes[theme] || "";
+        
+        document.getElementById('canvas').appendChild(el);
     }
 
-    function compileElementPositions() {
-        let styles = "";
-        document.querySelectorAll('.draggable-asset, .draggable-text').forEach((el, index) => {
-            styles += `.element-${index} { top: ${el.style.top}; left: ${el.style.left}; position: absolute; }\n`;
-        });
-        return styles;
-    }
-
-    // ... previous Giphy and Drag/Move event listeners ...
+    // ... (Keep existing Giphy, Drag Logic, and Supabase logic) ...
 });
