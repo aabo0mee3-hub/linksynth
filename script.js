@@ -1,56 +1,58 @@
-// --- (Keep your Supabase credentials here) ---
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'YOUR_ACTUAL_KEY';
+const GIPHY_KEY = 'dc6zaTOxFJmzC';
 
-let activeEl = null;
+let client, repoItems = [], activeEl = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Text Box Creation
+document.addEventListener('DOMContentLoaded', async () => {
+    client = window.supabase.createClient(SB_URL, SB_KEY);
+
+    // 1. COOKIE PERSISTENCE: Load session links
+    const saved = getCookie("repo_session");
+    if (saved) { repoItems = JSON.parse(saved); renderRepo(); }
+
+    // 2. TEXT BOX CREATOR
     document.getElementById('addTextBtn').onclick = () => {
-        const val = document.getElementById('textInput').value || "New Text";
-        spawnDraggable(val, 'div', 'draggable-text');
+        const val = document.getElementById('textInput').value || "Edit Me";
+        spawnDraggable(val, 'text');
         document.getElementById('textInput').value = "";
     };
 
-    // 2. Export Logic: The Prototyping "Magic"
+    // 3. EXPORT TOOL
     document.getElementById('exportBtn').onclick = () => {
         const canvas = document.getElementById('canvas');
-        let cssCode = `/* LinkSynth Prototype CSS */\n.mockup-container {\n  position: relative;\n  background: ${canvas.style.backgroundColor || '#fff'};\n  height: 500px;\n}\n\n`;
-        
-        const assets = document.querySelectorAll('.draggable-asset');
-        assets.forEach((el, index) => {
-            cssCode += `.element-${index} {\n  position: absolute;\n  left: ${el.style.left};\n  top: ${el.style.top};\n}\n`;
+        let css = `/* Exported Styles */\n.canvas {\n  background: ${canvas.style.backgroundColor};\n  font-family: ${canvas.style.fontFamily};\n}\n`;
+        document.querySelectorAll('.draggable-asset').forEach((el, i) => {
+            css += `.item-${i} { position: absolute; left: ${el.style.left}; top: ${el.style.top}; }\n`;
         });
-
-        document.getElementById('codeOutput').value = cssCode;
+        document.getElementById('codeOutput').value = css;
         document.getElementById('exportModal').style.display = 'flex';
     };
 
-    // 3. Spawning with Drag-and-Drop
-    function spawnDraggable(content, kind, extraClass = '') {
+    // 4. SUPABASE & SAVE LOGIC
+    document.getElementById('addBtn').onclick = async () => {
+        let url = document.getElementById('linkInput').value;
+        const type = document.getElementById('assetType').value;
+        if (!url.startsWith('http')) url = 'https://' + url;
+
+        const entry = { url, type };
+        repoItems.push(entry);
+        setCookie("repo_session", JSON.stringify(repoItems), 30);
+        renderRepo();
+        await client.from('Links').insert([entry]);
+    };
+
+    // HELPER: Spawn Items
+    function spawnDraggable(content, kind) {
         const el = document.createElement(kind === 'img' ? 'img' : 'div');
-        if (kind === 'img') el.src = content; 
-        else {
-            el.innerText = content;
-            el.contentEditable = true; // Allows double-click editing on the canvas
-        }
-        
-        el.className = `draggable-asset ${extraClass}`;
-        el.style.left = "100px";
-        el.style.top = "100px";
-        
-        el.onmousedown = (e) => { 
-            activeEl = el; 
-            el.style.zIndex = 1000; 
-        };
-        
+        if(kind === 'img') el.src = content; else { el.innerText = content; el.contentEditable = true; el.className += ' draggable-text'; }
+        el.className += ' draggable-asset';
+        el.style.left = '50px'; el.style.top = '50px';
+        el.onmousedown = () => activeEl = el;
         document.getElementById('canvas').appendChild(el);
     }
 
-    // Modal Close
-    document.getElementById('closeModal').onclick = () => {
-        document.getElementById('exportModal').style.display = 'none';
-    };
-
-    // Standard Drag Logic
+    // GIPHY & DRAG Logic... (Include mousemove logic from previous versions)
     document.onmousemove = (e) => {
         if (!activeEl) return;
         const rect = document.getElementById('canvas').getBoundingClientRect();
@@ -58,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         activeEl.style.top = (e.clientY - rect.top - 20) + 'px';
     };
     document.onmouseup = () => activeEl = null;
-
-    // ... (Add your Giphy and Preset Button listeners from previous versions here) ...
+    document.getElementById('closeModal').onclick = () => document.getElementById('exportModal').style.display = 'none';
 });
+
+// COOKIE HELPERS
+function setCookie(n,v,d){const date=new Date();date.setTime(date.getTime()+(d*24*60*60*1000));document.cookie=`${n}=${v};expires=${date.toUTCString()};path=/`;}
+function getCookie(n){const name=`${n}=`;const ca=document.cookie.split(';');for(let i=0;i<ca.length;i++){let c=ca[i];while(c.charAt(0)==' ')c=c.substring(1);if(c.indexOf(name)==0)return c.substring(name.length,c.length);}return "";}
+function renderRepo(){document.getElementById('linkList').innerHTML = repoItems.map(i => `<div class="link-card"><strong>${i.type}</strong><br>${i.url.slice(0,15)}...</div>`).join('');}
