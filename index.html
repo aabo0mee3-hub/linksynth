@@ -2,41 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LinkSynth Pro | Rapid Mockup Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkSynth Pro | Rapid Prototype Builder</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>LinkSynth Pro</h1>
-        <p>Design, drag, and export your website mockup code instantly.</p>
+        <h1>LinkSynth Builder</h1>
+        <p>Gather assets, themed links, and generate rapid prototypes at a moments notice.</p>
     </header>
 
     <main class="container">
         <section class="card">
             <h3>Text & Export Tools</h3>
             <div class="input-group">
-                <input type="text" id="textInput" placeholder="Enter headline or button text...">
-                <button id="addTextBtn">Create Text Box</button>
-                <button id="exportBtn" style="background: #10b981;">Export Mockup Code</button>
+                <input type="text" id="textInput" placeholder="Headline or button text...">
+                <button id="addTextBtn">Add Text Box</button>
+                <button id="exportBtn" style="background: var(--accent);">Export CSS/HTML</button>
             </div>
         </section>
 
         <section class="card">
-            <h3>Layout Presets</h3>
+            <h3>Quick Style Presets</h3>
             <div class="input-group">
-                <button class="preset-btn" data-theme="minimal">Minimalist</button>
+                <button class="preset-btn" data-theme="minimal">Minimal</button>
                 <button class="preset-btn" data-theme="glass">Glassmorphism</button>
                 <button class="preset-btn" data-theme="dark">Midnight</button>
-                <button class="preset-btn" data-theme="retro">Terminal</button>
+                <button class="preset-btn" data-theme="retro">Retro</button>
             </div>
         </section>
 
         <section class="card">
+            <h3>Add New Asset Link</h3>
             <div class="input-group">
-                <input type="text" id="linkInput" placeholder="https://...">
-                <button id="addBtn">Add Link</button>
+                <input type="text" id="linkInput" placeholder="https://example.com/asset.css">
+                <select id="assetType">
+                    <option value="theme">Theme/CSS</option>
+                    <option value="image">Image Asset</option>
+                </select>
+                <button id="addBtn">Save to Repo</button>
             </div>
             <div id="linkList" class="grid"></div>
+        </section>
+
+        <section class="card">
             <div class="gif-search-box">
                 <input type="text" id="gifSearch" placeholder="Search Giphy...">
                 <button id="searchGifBtn">Find GIFs</button>
@@ -45,16 +54,19 @@
         </section>
 
         <section id="preview-area">
+            <div class="preview-header">
+                <h2>Live Prototype Canvas</h2>
+                <button id="applyThemeBtn">Import Formatting</button>
+            </div>
             <div id="canvas">
-                <p class="placeholder-text">Drag items here. Double-click text boxes to edit.</p>
+                <p class="placeholder-text">Double-click text to edit. Drag to arrange.</p>
             </div>
         </section>
     </main>
 
     <div id="exportModal" class="modal" style="display:none;">
         <div class="modal-content card">
-            <h3>Generated CSS/HTML</h3>
-            <p>Copy this code into your project files:</p>
+            <h3>Mockup Export Code</h3>
             <textarea id="codeOutput" readonly></textarea>
             <button id="closeModal">Close</button>
         </div>
