@@ -1,22 +1,18 @@
-:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-.container { max-width: 900px; margin: 0 auto; }
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-.input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-input, select { background: #0f172a; color: white; border: 1px solid #334155; padding: 10px; border-radius: 8px; flex: 1; }
-button { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+/* ... (existing core styles) ... */
 
-/* Canvas & Drag-and-Drop */
-#canvas { 
-    position: relative; 
-    background: white; 
-    min-height: 500px; 
-    border-radius: 15px; 
-    overflow: hidden; 
-    border: 3px solid var(--primary); 
-    color: #333;
+/* PRESET DEFINITIONS */
+#canvas.minimal { background: #f8fafc; border: 1px solid #e2e8f0; font-family: sans-serif; }
+
+#canvas.glass { 
+    background: rgba(255, 255, 255, 0.2); 
+    backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
+
+#canvas.dark { background: #020617; color: #38bdf8; border-color: #1e293b; }
+
+#canvas.retro { background: #000; color: #0f0; font-family: 'Courier New', monospace; border: 2px solid #0f0; }
+
+/* Drag & Drop Positioning */
 .draggable-asset { position: absolute; cursor: move; user-select: none; max-width: 150px; z-index: 10; }
-.gif-scroll { display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; min-height: 80px; }
-.grid { display: flex; gap: 10px; flex-wrap: wrap; }
-.link-card { background: #334155; padding: 10px; border-radius: 8px; font-size: 11px; }
