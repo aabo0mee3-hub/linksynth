@@ -1,29 +1,26 @@
-:root {
-    --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b;
-    --text: #f1f5f9; --accent: #10b981;
-}
-
+:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --accent: #10b981; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-.container { max-width: 1000px; margin: 0 auto; }
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
-.input-group { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-.action-bar { display: flex; gap: 15px; margin-bottom: 20px; }
+.container { max-width: 900px; margin: 0 auto; }
+.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+.input-group { display: flex; gap: 8px; margin-bottom: 15px; }
 
-#canvas {
-    position: relative; background: white; min-height: 600px;
-    border-radius: 12px; border: 3px solid var(--primary);
-    overflow: hidden; color: #333;
+#canvas { 
+    position: relative; min-height: 500px; border-radius: 12px; 
+    border: 3px solid var(--primary); overflow: hidden; transition: 0.3s;
 }
 
-/* SHAPES */
+/* THEME DYNAMICS */
+#canvas.light { background: #ffffff; color: #1e293b; }
+#canvas.dark { background: #1e293b; color: #f1f5f9; }
+
+/* SHAPES & ASSETS */
 .draggable-asset { position: absolute; cursor: move; z-index: 10; }
-.shape-rect { width: 200px; height: 100px; background: #cbd5e1; border: 2px solid #94a3b8; }
-.shape-circle { width: 80px; height: 80px; background: #cbd5e1; border: 2px solid #94a3b8; border-radius: 50%; }
-.draggable-text { padding: 10px; background: #fff; border: 1px solid #ddd; min-width: 100px; font-weight: bold; }
+.shape-rect { width: 150px; height: 80px; border: 2px solid #64748b; }
+.shape-circle { width: 60px; height: 60px; border: 2px solid #64748b; border-radius: 50%; }
 
-/* PRESET THEMES */
-#canvas.glass { background: rgba(255, 255, 255, 0.2) !important; backdrop-filter: blur(10px); }
-#canvas.dark { background: #020617 !important; color: #38bdf8 !important; }
-#canvas.minimal { background: #f8fafc !important; border: 1px solid #e2e8f0; }
+/* Shape colors change based on canvas theme */
+.light .shape-rect, .light .shape-circle { background: #e2e8f0; }
+.dark .shape-rect, .dark .shape-circle { background: #334155; border-color: var(--primary); }
 
-.link-card { background: #334155; padding: 8px; border-radius: 6px; font-size: 0.7rem; }
+.draggable-text { padding: 5px; font-weight: bold; min-width: 50px; }
+.link-card { background: #334155; padding: 5px; border-radius: 4px; font-size: 10px; }
