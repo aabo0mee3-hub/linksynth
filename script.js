@@ -1,85 +1,79 @@
-// Supabase Configuration (Placeholders)
-const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+// CONFIGURATION
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'YOUR_SUPABASE_KEY';
+const TENOR_API_KEY = 'YOUR_TENOR_KEY'; // Replace this with your Tenor API Key
 
-// DOM Elements
-const linkInput = document.getElementById('linkInput');
-const assetType = document.getElementById('assetType');
-const addBtn = document.getElementById('addBtn');
-const linkList = document.getElementById('linkList');
-const generateBtn = document.getElementById('generateBtn');
-const canvas = document.getElementById('canvas');
+let client, activeEl = null;
 
-let repository = [];
+document.addEventListener('DOMContentLoaded', async () => {
+    client = window.supabase.createClient(SB_URL, SB_KEY);
 
-// 1. Initialize: Check Cookies/Local Storage
-window.onload = () => {
-    const savedData = getCookie("repo_session");
-    if (savedData) {
-        repository = JSON.parse(savedData);
-        renderRepository();
-    }
-};
+    // 1. TENOR GIF SEARCH
+    document.getElementById('searchGifBtn').onclick = async () => {
+        const query = document.getElementById('gifSearch').value;
+        const url = `https://tenor.googleapis.com/v2/search?q=${query}&key=${TENOR_API_KEY}&limit=8`;
+        
+        try {
+            const resp = await fetch(url);
+            const { results } = await resp.json();
+            const box = document.getElementById('gifResults');
+            box.innerHTML = results.map(g => `
+                <img src="${g.media_formats.tinygif.url}" class="tenor-gif" data-full="${g.media_formats.gif.url}">
+            `).join('');
 
-// 2. Add Link Logic
-addBtn.onclick = async () => {
-    const url = linkInput.value;
-    const type = assetType.value;
-    if (!url) return alert("Please enter a URL");
+            document.querySelectorAll('.tenor-gif').forEach(img => {
+                img.onclick = () => spawnDraggable(img.dataset.full, 'img');
+            });
+        } catch (e) { console.error("Tenor Error:", e); }
+    };
 
-    const entry = { url, type, timestamp: new Date() };
-    repository.push(entry);
-    
-    // Save to Cookies (30 day expiry)
-    setCookie("repo_session", JSON.stringify(repository), 30);
-    
-    // Save to Supabase
-    const { data, error } = await supabase.from('links').insert([entry]);
-    
-    renderRepository();
-    linkInput.value = "";
-};
-
-// 3. Render Repository
-function renderRepository() {
-    linkList.innerHTML = repository.map(item => `
-        <div class="link-card">
-            <strong>${item.type.toUpperCase()}</strong><br>
-            ${item.url}
-        </div>
-    `).join('');
-}
-
-// 4. Generate Prototype Logic
-generateBtn.onclick = () => {
-    canvas.innerHTML = `<h3>Generated Prototype</h3><p>Importing assets...</p>`;
-    
-    repository.forEach(item => {
-        if (item.type === 'theme') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = item.url;
-            canvas.appendChild(link);
-        }
-        if (item.type === 'image') {
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.style.width = "100px";
-            canvas.appendChild(img);
-        }
+    // 2. PRESET FORMAT BUTTONS
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.onclick = () => {
+            const canvas = document.getElementById('canvas');
+            // Remove any previously applied preset classes
+            canvas.className = ''; 
+            // Apply the new one
+            canvas.classList.add(btn.dataset.theme);
+        };
     });
-};
 
-// Cookie Helper Functions
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
+    // 3. IMAGE IMPORTATION TOOL
+    document.getElementById('imageImporter').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => spawnDraggable(event.target.result, 'img');
+            reader.readAsDataURL(file);
+        }
+    };
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+    // 4. TEXT BOX CREATOR
+    document.getElementById('addTextBtn').onclick = () => {
+        const txt = document.getElementById('textInput').value || "Edit Text";
+        spawnDraggable(txt, 'text');
+        document.getElementById('textInput').value = "";
+    };
+
+    // HELPERS
+    function spawnDraggable(src, kind) {
+        const el = document.createElement(kind === 'img' ? 'img' : 'div');
+        if (kind === 'img') el.src = src;
+        else { el.innerText = src; el.contentEditable = true; el.className = 'draggable-text'; }
+        
+        el.classList.add('draggable-asset');
+        el.style.left = '50px'; el.style.top = '50px';
+        
+        el.onmousedown = (e) => { activeEl = el; el.style.zIndex = 1000; };
+        document.getElementById('canvas').appendChild(el);
+    }
+
+    // DRAG ENGINE
+    document.onmousemove = (e) => {
+        if (!activeEl) return;
+        const rect = document.getElementById('canvas').getBoundingClientRect();
+        activeEl.style.left = (e.clientX - rect.left - 30) + 'px';
+        activeEl.style.top = (e.clientY - rect.top - 30) + 'px';
+    };
+    document.onmouseup = () => activeEl = null;
+});
