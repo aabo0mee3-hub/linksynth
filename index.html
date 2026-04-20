@@ -2,54 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LinkSynth | Browser Prototype Maker</title>
+    <title>LinkSynth | Browser Page Maker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>LinkSynth Builder</h1>
-        <p>Rapid profiling: Stack themes, drop shapes, and export prototypes.</p>
+        <p>Rapid Profiling: Stack assets and build dummy pages.</p>
     </header>
 
     <main class="container">
         <section class="card">
-            <h3>1. Style & Asset Repository</h3>
+            <h3>1. Style Stack</h3>
             <div class="input-group">
-                <input type="text" id="linkInput" placeholder="Paste CSS Link (e.g., https://cdn.../style.css)">
-                <select id="assetType">
-                    <option value="theme">CSS Theme</option>
-                    <option value="image">External Image</option>
-                </select>
+                <input type="text" id="linkInput" placeholder="Paste CSS Link here...">
                 <button id="addBtn">Add to Stack</button>
             </div>
             <div id="linkList" class="grid"></div>
         </section>
 
         <section class="card">
-            <h3>2. Wireframe & Concept Tools</h3>
+            <h3>2. Layout Components</h3>
             <div class="input-group">
-                <button class="shape-btn" data-shape="rect">Add Section (Box)</button>
-                <button class="shape-btn" data-shape="circle">Add Profile (Circle)</button>
-                <button id="addTextBtn">Add Text Box</button>
-                <button onclick="document.getElementById('imageImporter').click()">Upload Local Image</button>
+                <button class="shape-btn" data-shape="rect">Add Section</button>
+                <button class="shape-btn" data-shape="circle">Add Profile</button>
+                <button id="addTextBtn">Add Text</button>
+                <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
                 <input type="file" id="imageImporter" style="display:none" accept="image/*">
             </div>
-            <div class="preset-bar">
-                <span>Presets: </span>
-                <button class="preset-btn" data-theme="glass">Glassmorphism</button>
-                <button class="preset-btn" data-theme="dark">Midnight Dark</button>
-                <button class="preset-btn" data-theme="minimal">Clean Minimal</button>
+            <div class="theme-toggle">
+                <span>Active Theme: </span>
+                <button class="theme-btn" data-theme="light">Light Mode</button>
+                <button class="theme-btn" data-theme="dark">Dark Mode</button>
             </div>
         </section>
 
         <div class="action-bar">
-            <button id="applyThemeBtn">🚀 Sync Stack to Canvas</button>
             <button id="launchDummyBtn" style="background: var(--accent);">🌐 Launch Dummy Page</button>
-            <button id="exportBtn" style="background: #64748b;">Copy CSS Code</button>
+            <button id="clearCanvasBtn" style="background: #ef4444;">Clear Canvas</button>
         </div>
 
-        <div id="canvas">
-            <p class="placeholder-text">Concept Area: Drag shapes and text here.</p>
+        <div id="canvas" class="light">
+            <p class="placeholder-text">Drag items here to profile your layout.</p>
         </div>
     </main>
 
