@@ -1,54 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkSynth | Prototype Repository</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>LinkSynth Builder</h1>
-        <p>Gather assets, themed links, and generate rapid prototypes.</p>
-    </header>
+<main class="container">
+    <section class="card">
+        <div class="input-group">
+            <input type="text" id="textInput" placeholder="New text box content...">
+            <button id="addTextBtn">Add Text</button>
+            <button onclick="document.getElementById('imageImporter').click()">+ Import Image</button>
+            <input type="file" id="imageImporter" style="display:none" accept="image/*">
+            <button id="exportBtn" style="background: var(--accent);">Export CSS</button>
+        </div>
+    </section>
 
-    <main class="container">
-        <section id="input-area">
-            <div class="card">
-                <h3>Add New Asset Link</h3>
-                <div class="input-group">
-                    <input type="text" id="linkInput" placeholder="https://example.com/asset-or-theme">
-                    <select id="assetType">
-                        <option value="theme">Theme/CSS</option>
-                        <option value="image">Image Asset</option>
-                        <option value="reference">Reference Site</option>
-                    </select>
-                    <button id="addBtn">Add to Repository</button>
-                </div>
-            </div>
-        </section>
+    <section class="card">
+        <h3>Workspace Presets</h3>
+        <div class="input-group">
+            <button class="preset-btn" data-theme="minimal">Minimal</button>
+            <button class="preset-btn" data-theme="glass">Glass</button>
+            <button class="preset-btn" data-theme="dark">Midnight</button>
+            <button class="preset-btn" data-theme="retro">Terminal</button>
+        </div>
+    </section>
 
-        <section id="repository">
-            <h2>Current Repository</h2>
-            <div id="linkList" class="grid">
-                </div>
-            <button id="clearBtn" class="secondary">Clear Session</button>
-        </section>
+    <section class="card">
+        <div class="input-group">
+            <input type="text" id="gifSearch" placeholder="Search Tenor GIFs...">
+            <button id="searchGifBtn">Search Tenor</button>
+        </div>
+        <div id="gifResults" class="gif-scroll"></div>
+    </section>
 
-        <section id="preview-area">
-            <div class="preview-header">
-                <h2>Prototype Preview</h2>
-                <button id="generateBtn">Generate Test Page</button>
-            </div>
-            <div id="previewContainer">
-                <div id="canvas">
-                    <p class="placeholder-text">Click "Generate" to import formatting and links into this canvas.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+    <div id="canvas-wrapper">
+        <div id="canvas">
+            <p class="placeholder-text">Workspace Active: Import images or add text.</p>
+        </div>
+    </div>
+</main>
