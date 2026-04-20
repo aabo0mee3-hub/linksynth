@@ -1,6 +1,6 @@
 // CONFIGURATION
 const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SB_KEY = 'YOUR_SUPABASE_KEY';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
 const TENOR_API_KEY = 'YOUR_TENOR_KEY'; // Replace this with your Tenor API Key
 
 let client, activeEl = null;
