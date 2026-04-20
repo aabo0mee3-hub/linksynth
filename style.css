@@ -1,21 +1,29 @@
-/* ... Keep core colors from style(1).css ... */
-
-/* PRESET THEMES - These apply to the #canvas element */
-#canvas.minimal { background: #fdfdfd !important; border: 1px solid #ddd; color: #333; }
-#canvas.glass { 
-    background: rgba(255, 255, 255, 0.1) !important; 
-    backdrop-filter: blur(15px); 
-    border: 1px solid rgba(255,255,255,0.2); 
+:root {
+    --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b;
+    --text: #f1f5f9; --accent: #10b981;
 }
-#canvas.dark { background: #020617 !important; color: #38bdf8 !important; border: 2px solid #1e293b; }
-#canvas.retro { background: #000 !important; color: #0f0 !important; font-family: 'Courier New', monospace; border: 2px solid #0f0; }
 
-/* GIF Scroll Area */
-.gif-scroll {
-    display: flex; gap: 10px; overflow-x: auto; margin-top: 15px;
-    padding-bottom: 10px; min-height: 80px;
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+.container { max-width: 1000px; margin: 0 auto; }
+.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
+.input-group { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+.action-bar { display: flex; gap: 15px; margin-bottom: 20px; }
+
+#canvas {
+    position: relative; background: white; min-height: 600px;
+    border-radius: 12px; border: 3px solid var(--primary);
+    overflow: hidden; color: #333;
 }
-.tenor-gif { height: 80px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-.tenor-gif:hover { transform: scale(1.1); }
 
-.draggable-asset { position: absolute; cursor: move; z-index: 100; max-width: 200px; }
+/* SHAPES */
+.draggable-asset { position: absolute; cursor: move; z-index: 10; }
+.shape-rect { width: 200px; height: 100px; background: #cbd5e1; border: 2px solid #94a3b8; }
+.shape-circle { width: 80px; height: 80px; background: #cbd5e1; border: 2px solid #94a3b8; border-radius: 50%; }
+.draggable-text { padding: 10px; background: #fff; border: 1px solid #ddd; min-width: 100px; font-weight: bold; }
+
+/* PRESET THEMES */
+#canvas.glass { background: rgba(255, 255, 255, 0.2) !important; backdrop-filter: blur(10px); }
+#canvas.dark { background: #020617 !important; color: #38bdf8 !important; }
+#canvas.minimal { background: #f8fafc !important; border: 1px solid #e2e8f0; }
+
+.link-card { background: #334155; padding: 8px; border-radius: 6px; font-size: 0.7rem; }
