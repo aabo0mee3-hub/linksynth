@@ -1,16 +1,16 @@
-:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --accent: #10b981; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-.container { max-width: 900px; margin: 0 auto; }
-.card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
-.input-group { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+/* ... Keep Midnight Navy variables from your style(1).css ... */
 
-#canvas { 
-    position: relative; min-height: 550px; border-radius: 12px; 
-    border: 3px solid var(--primary); background: #fff; overflow: hidden; 
-}
-#canvas.dark { background: #1e293b; color: #fff; }
+/* THEME DYNAMICS */
+#canvas.light { background: #ffffff; color: #1e293b; border: 2px dashed #cbd5e1; }
+#canvas.dark { background: #0f172a; color: #f1f5f9; border: 2px solid var(--primary); }
 
-.draggable-asset { position: absolute; cursor: move; z-index: 10; }
-.shape-rect { width: 150px; height: 80px; background: #cbd5e1; border: 2px solid #64748b; }
-.shape-circle { width: 60px; height: 60px; background: #cbd5e1; border-radius: 50%; border: 2px solid #64748b; }
-.status-msg { font-size: 12px; color: var(--primary); margin-top: 5px; }
+/* SHAPES */
+.draggable-asset { position: absolute; cursor: move; z-index: 10; transition: transform 0.1s; }
+.shape-rect { width: 150px; height: 90px; background: #94a3b8; border: 2px solid #64748b; }
+.shape-circle { width: 80px; height: 80px; background: #94a3b8; border-radius: 50%; border: 2px solid #64748b; }
+.shape-pill { width: 120px; height: 40px; background: var(--primary); border-radius: 20px; border: none; }
+
+.draggable-text { font-weight: bold; padding: 5px; min-width: 100px; }
+.uploaded-img { max-width: 200px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+.action-bar { display: flex; gap: 10px; margin-bottom: 15px; }
