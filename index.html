@@ -25,8 +25,12 @@
         <section class="card">
             <h3>2. Manual Adjustments</h3>
             <div class="input-group">
-                <button class="shape-btn" data-shape="rect">Add Section</button>
-                <button class="shape-btn" data-shape="circle">Add Profile</button>
+                <select id="shapePicker">
+                    <option value="rect">Add Section (Box)</option>
+                    <option value="circle">Add Profile (Circle)</option>
+                    <option value="pill">Add Button (Pill)</option>
+                </select>
+                <button id="addShapeBtn">Insert Shape</button>
                 <button id="addTextBtn">Add Text</button>
                 <button onclick="document.getElementById('imageImporter').click()">+ Upload Image</button>
                 <input type="file" id="imageImporter" style="display:none" accept="image/*">
@@ -39,10 +43,12 @@
 
         <div class="action-bar">
             <button id="launchDummyBtn">🌐 Launch Dummy Page</button>
-            <button id="clearCanvasBtn" style="background: #ef4444;">Clear</button>
+            <button id="clearCanvasBtn" style="background: #ef4444;">Clear Canvas</button>
         </div>
 
-        <div id="canvas" class="light"></div>
+        <div id="canvas" class="light">
+            <p class="placeholder-text">Concept Area: Drag shapes and text here.</p>
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
