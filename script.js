@@ -1,85 +1,46 @@
-// Supabase Configuration (Placeholders)
-const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
+let client, activeEl = null;
 
-// DOM Elements
-const linkInput = document.getElementById('linkInput');
-const assetType = document.getElementById('assetType');
-const addBtn = document.getElementById('addBtn');
-const linkList = document.getElementById('linkList');
-const generateBtn = document.getElementById('generateBtn');
-const canvas = document.getElementById('canvas');
+document.addEventListener('DOMContentLoaded', async () => {
+    client = window.supabase.createClient(SB_URL, SB_KEY);
 
-let repository = [];
+    // FEATURE: SNAPSHOTTING (Prepares JSON for LLM adaptation)
+    document.getElementById('snapshotBtn').onclick = async () => {
+        const assets = document.querySelectorAll('.draggable-asset');
+        const snapshot = Array.from(assets).map(el => ({
+            type: el.classList.contains('shape-circle') ? 'circle' : (el.tagName === 'IMG' ? 'image' : 'rect'),
+            left: el.style.left,
+            top: el.style.top,
+            text: el.innerText || ""
+        }));
 
-// 1. Initialize: Check Cookies/Local Storage
-window.onload = () => {
-    const savedData = getCookie("repo_session");
-    if (savedData) {
-        repository = JSON.parse(savedData);
-        renderRepository();
+        console.log("Canvas Snapshot for LLM:", snapshot);
+        // Save to Supabase for session memory
+        await client.from('Snapshots').insert([{ data: snapshot }]);
+        alert("Snapshot saved to Supabase!");
+    };
+
+    // SHARED SPAWN FUNCTION
+    function spawn(content, type, className) {
+        const el = document.createElement(type);
+        if (type === 'img') el.src = content; 
+        else { el.innerText = content; el.contentEditable = true; }
+        el.className = `draggable-asset ${className}`;
+        el.style.left = '50px'; el.style.top = '50px';
+        el.onmousedown = () => { activeEl = el; el.style.zIndex = 1000; };
+        document.getElementById('canvas').appendChild(el);
     }
-};
 
-// 2. Add Link Logic
-addBtn.onclick = async () => {
-    const url = linkInput.value;
-    const type = assetType.value;
-    if (!url) return alert("Please enter a URL");
-
-    const entry = { url, type, timestamp: new Date() };
-    repository.push(entry);
+    // BUTTON HANDLERS
+    document.querySelectorAll('.shape-btn').forEach(b => b.onclick = () => spawn('', 'div', `shape-${b.dataset.shape}`));
+    document.getElementById('addTextBtn').onclick = () => spawn('New Text', 'div', 'draggable-text');
     
-    // Save to Cookies (30 day expiry)
-    setCookie("repo_session", JSON.stringify(repository), 30);
-    
-    // Save to Supabase
-    const { data, error } = await supabase.from('links').insert([entry]);
-    
-    renderRepository();
-    linkInput.value = "";
-};
-
-// 3. Render Repository
-function renderRepository() {
-    linkList.innerHTML = repository.map(item => `
-        <div class="link-card">
-            <strong>${item.type.toUpperCase()}</strong><br>
-            ${item.url}
-        </div>
-    `).join('');
-}
-
-// 4. Generate Prototype Logic
-generateBtn.onclick = () => {
-    canvas.innerHTML = `<h3>Generated Prototype</h3><p>Importing assets...</p>`;
-    
-    repository.forEach(item => {
-        if (item.type === 'theme') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = item.url;
-            canvas.appendChild(link);
-        }
-        if (item.type === 'image') {
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.style.width = "100px";
-            canvas.appendChild(img);
-        }
-    });
-};
-
-// Cookie Helper Functions
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+    document.onmousemove = (e) => {
+        if (!activeEl) return;
+        const rect = document.getElementById('canvas').getBoundingClientRect();
+        activeEl.style.left = (e.clientX - rect.left - 20) + 'px';
+        activeEl.style.top = (e.clientY - rect.top - 20) + 'px';
+    };
+    document.onmouseup = () => activeEl = null;
+});
