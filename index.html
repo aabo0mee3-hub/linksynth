@@ -32,14 +32,15 @@
         </section>
 
         <div id="canvas" class="light">
-             <p class="placeholder-text">Concept Area: Drag shapes and text here.</p>
+             <p class="placeholder-text">Concept Area: Drag assets here to build your profile.</p>
         </div>
 
         <section class="card" style="margin-top: 20px;">
             <h3>AI Layout Refiner</h3>
+            <p style="font-size: 0.8rem; opacity: 0.8;">Send your exported PNG to an LLM with the prompt below to iterate.</p>
             <div class="input-group">
-                <input type="text" id="aiUrlInput" placeholder="Enter URL or prompt for AI iteration...">
-                <button id="aiAnalyzeBtn">Analyze/Refine</button>
+                <input type="text" id="aiUrlInput" placeholder="Describe the changes you want AI to make...">
+                <button id="aiAnalyzeBtn">Generate Refinement</button>
             </div>
         </section>
     </main>
