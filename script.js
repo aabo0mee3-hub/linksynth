@@ -7,53 +7,51 @@ let activeEl = null;
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('canvas');
 
-    // 1. ASSET SPAWNING
+    // 1. UI INTERACTION
     document.getElementById('addShapeBtn').onclick = () => spawn('', 'div', document.getElementById('shapeSelect').value);
-    document.getElementById('addTextBtn').onclick = () => spawn('Editable Concept Text', 'div', 'draggable-text');
+    document.getElementById('addTextBtn').onclick = () => spawn('New Concept Text', 'div', 'draggable-text');
 
-    // 2. THEME SWITCHING
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.onclick = () => canvas.className = btn.dataset.mode;
     });
 
-    document.getElementById('clearCanvasBtn').onclick = () => { if(confirm("Clear work?")) canvas.innerHTML = ''; };
+    document.getElementById('clearCanvasBtn').onclick = () => { if(confirm("Clear Canvas?")) canvas.innerHTML = ''; };
 
-    // 3. THE FIXED EXPORT ENGINE
+    // 2. THE THEMED EXPORT ENGINE
     document.getElementById('launchDummyBtn').onclick = () => {
         const win = window.open('', '_blank');
         const canvasHtml = canvas.innerHTML;
         const currentTheme = canvas.className;
+        const bgColor = currentTheme === 'dark' ? '#0f172a' : '#f8fafc'; // Bakes color into Export
         
-        // Grab all styles from the current document to inject into the popup
-        const styles = Array.from(document.styleSheets)
-            .map(sheet => {
-                try { return Array.from(sheet.cssRules).map(rule => rule.cssText).join(''); } 
-                catch (e) { return ''; } // Handle cross-origin issues
-            }).join('');
+        // Extract styles to keep themes working in the popup
+        const styles = Array.from(document.styleSheets).map(s => {
+            try { return Array.from(s.cssRules).map(r => r.cssText).join(''); } catch(e) { return ''; }
+        }).join('');
 
         win.document.write(`
             <html>
                 <head>
-                    <title>LinkSynth Export</title>
                     <style>${styles}</style>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
                 </head>
-                <body class="${currentTheme}" style="padding:40px; display:flex; flex-direction:column; align-items:center;">
-                    <div id="export-area" class="${currentTheme}" style="position:relative; width:100%; min-height:600px; border:1px solid #444; border-radius:10px;">
+                <body class="${currentTheme}" style="padding:40px; background:${bgColor};">
+                    <div id="export-area" class="${currentTheme}" style="position:relative; width:100%; min-height:600px; background:${bgColor}; border:1px solid #444;">
                         ${canvasHtml}
                     </div>
-                    <div style="margin-top:20px;">
-                        <button onclick="doSnapshot()" style="background:#10b981; color:white; padding:15px 30px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:16px;">💾 Save as PNG</button>
+                    <div style="text-align:center; margin-top:20px;">
+                        <button onclick="saveSnapshot()" style="background:#10b981; color:white; padding:15px 30px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">💾 Save Static PNG for AI</button>
                     </div>
                     <script>
-                        function doSnapshot() {
-                            html2canvas(document.querySelector("#export-area"), {
-                                backgroundColor: null,
-                                useCORS: true,
-                                scale: 2 // Higher quality export
+                        function saveSnapshot() {
+                            const area = document.querySelector("#export-area");
+                            html2canvas(area, {
+                                backgroundColor: "${bgColor}", // Forces the static background
+                                scale: 2,
+                                useCORS: true
                             }).then(canvas => {
                                 let link = document.createElement('a');
-                                link.download = 'LinkSynth-Mockup.png';
+                                link.download = 'LinkSynth-AI-Profile.png';
                                 link.href = canvas.toDataURL("image/png");
                                 link.click();
                             });
@@ -64,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `);
     };
 
-    // 4. CORE ENGINE (Dragging & Spawning)
+    // 3. DRAG & DROP ENGINE
     function spawn(content, type, className) {
         const el = document.createElement(type);
         if (type === 'img') el.src = content; 
