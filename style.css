@@ -1,25 +1,22 @@
 :root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --accent: #10b981; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
 .container { max-width: 900px; margin: 0 auto; }
 .card { background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
 .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
 
+/* THEME ENGINE */
 #canvas { 
-    position: relative; min-height: 550px; border-radius: 12px; 
-    border: 3px solid var(--primary); overflow: hidden; transition: 0.3s;
+    position: relative; min-height: 500px; border-radius: 12px; 
+    border: 3px dashed #cbd5e1; transition: 0.3s; overflow: hidden;
 }
+#canvas.light { background: #ffffff; color: #1e293b; }
+#canvas.dark { background: #0f172a; color: #f1f5f9; border-color: var(--primary); }
 
-/* THEMES */
-#canvas.light { background: #ffffff; }
-#canvas.dark { background: #0f172a; border-color: #334155; }
-
-/* DRAGGABLE SHAPES */
+/* SHAPES */
 .draggable-asset { position: absolute; cursor: move; z-index: 10; border: 2px solid #64748b; background: #cbd5e1; }
-.shape-rect { width: 160px; height: 90px; }
+.shape-rect { width: 150px; height: 90px; }
 .shape-circle { width: 70px; height: 70px; border-radius: 50%; }
-.shape-pill { width: 120px; height: 40px; border-radius: 20px; }
 
-/* Dark Mode Shape Adjustments */
-#canvas.dark .draggable-asset { background: #334155; border-color: var(--primary); color: white; }
-
-.draggable-text { padding: 5px; font-weight: bold; min-width: 50px; background: none !important; border: none !important; }
+/* Shape adaptation to theme */
+#canvas.dark .draggable-asset { background: #1e293b; border-color: var(--primary); }
+.draggable-text { border: none !important; background: transparent !important; font-weight: bold; padding: 5px; }
