@@ -1,27 +1,26 @@
-/* --- THEME DYNAMICS --- */
-/* Light Mode (Default) */
-#canvas.light, body.light { 
-    background: #ffffff !important; 
-    color: #1e293b !important; 
+:root { --primary: #3b82f6; --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --accent: #10b981; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+.container { max-width: 950px; margin: 0 auto; }
+.card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #334155; }
+.input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+
+#canvas { 
+    position: relative; min-height: 500px; border-radius: 12px; 
+    border: 2px dashed #475569; transition: all 0.3s ease; overflow: hidden;
 }
 
-/* Dark Mode */
-#canvas.dark, body.dark { 
-    background: #0f172a !important; 
-    color: #f1f5f9 !important; 
-}
+/* THEME LOGIC */
+#canvas.light { background: #f8fafc; color: #1e293b; }
+#canvas.dark { background: #0f172a; color: #f1f5f9; border-color: var(--primary); }
 
-/* --- TEXT ADAPTATION --- */
-.draggable-text { 
-    padding: 5px; 
-    font-weight: bold; 
-    min-width: 50px;
-    /* This ensures text is always visible against the theme background */
-    color: inherit; 
-}
+/* Draggable Assets */
+.draggable-asset { position: absolute; cursor: move; z-index: 10; display: flex; align-items: center; justify-content: center; text-align: center; }
+.shape-rect { width: 150px; height: 100px; background: #94a3b8; border: 1px solid #64748b; }
+.shape-circle { width: 80px; height: 80px; background: #94a3b8; border-radius: 50%; border: 1px solid #64748b; }
 
-/* Ensure shapes stand out in Dark Mode */
-body.dark .draggable-asset:not(.draggable-text) {
-    background: #334155;
-    border-color: #3b82f6;
-}
+/* Text color adapts to the canvas theme */
+.draggable-text { padding: 5px; font-weight: 500; min-width: 100px; border: 1px dashed transparent; }
+#canvas.light .draggable-text { color: #1e293b; }
+#canvas.dark .draggable-text { color: #f1f5f9; }
+
+#canvas.dark .shape-rect, #canvas.dark .shape-circle { background: #334155; border-color: var(--primary); color: white; }
