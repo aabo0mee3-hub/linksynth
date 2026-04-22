@@ -7,54 +7,53 @@ let activeEl = null;
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('canvas');
 
-    // --- WORKSPACE TOOLS ---
-    document.getElementById('addShapeBtn').onclick = () => {
-        const shape = document.getElementById('shapeSelect').value;
-        spawn('', 'div', shape);
-    };
+    // 1. ASSET SPAWNING
+    document.getElementById('addShapeBtn').onclick = () => spawn('', 'div', document.getElementById('shapeSelect').value);
+    document.getElementById('addTextBtn').onclick = () => spawn('Editable Concept Text', 'div', 'draggable-text');
 
-    document.getElementById('addTextBtn').onclick = () => spawn('New Text Box', 'div', 'draggable-text');
-
+    // 2. THEME SWITCHING
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.onclick = () => canvas.className = btn.dataset.mode;
     });
 
-    document.getElementById('clearCanvasBtn').onclick = () => {
-        if(confirm("Clear Canvas?")) canvas.innerHTML = '';
-    };
+    document.getElementById('clearCanvasBtn').onclick = () => { if(confirm("Clear work?")) canvas.innerHTML = ''; };
 
-    // --- THE DUMMY PAGE (Theme-Fixed) ---
+    // 3. THE FIXED EXPORT ENGINE
     document.getElementById('launchDummyBtn').onclick = () => {
         const win = window.open('', '_blank');
         const canvasHtml = canvas.innerHTML;
         const currentTheme = canvas.className;
-        // Grabs the existing stylesheet to inject into the new window
-        const styleLink = document.querySelector('link[rel="stylesheet"]').href;
+        
+        // Grab all styles from the current document to inject into the popup
+        const styles = Array.from(document.styleSheets)
+            .map(sheet => {
+                try { return Array.from(sheet.cssRules).map(rule => rule.cssText).join(''); } 
+                catch (e) { return ''; } // Handle cross-origin issues
+            }).join('');
 
         win.document.write(`
             <html>
                 <head>
-                    <link rel="stylesheet" href="${styleLink}">
+                    <title>LinkSynth Export</title>
+                    <style>${styles}</style>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-                    <style>
-                        body { margin: 0; padding: 40px; display: flex; flex-direction: column; align-items: center; }
-                        #export-area { width: 100%; min-height: 600px; position: relative; border: 1px solid #ccc; border-radius: 8px; }
-                        .controls { margin-top: 20px; padding: 20px; background: #eee; border-radius: 8px; width: 100%; text-align: center; }
-                    </style>
                 </head>
-                <body class="${currentTheme}">
-                    <div id="export-area" class="${currentTheme}">
+                <body class="${currentTheme}" style="padding:40px; display:flex; flex-direction:column; align-items:center;">
+                    <div id="export-area" class="${currentTheme}" style="position:relative; width:100%; min-height:600px; border:1px solid #444; border-radius:10px;">
                         ${canvasHtml}
                     </div>
-                    <div class="controls">
-                        <button onclick="downloadPNG()" style="background:#10b981; color:white; padding:12px 24px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">💾 Download PNG Mockup</button>
+                    <div style="margin-top:20px;">
+                        <button onclick="doSnapshot()" style="background:#10b981; color:white; padding:15px 30px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:16px;">💾 Save as PNG</button>
                     </div>
                     <script>
-                        function downloadPNG() {
-                            const area = document.querySelector("#export-area");
-                            html2canvas(area, { backgroundColor: null }).then(canvas => {
+                        function doSnapshot() {
+                            html2canvas(document.querySelector("#export-area"), {
+                                backgroundColor: null,
+                                useCORS: true,
+                                scale: 2 // Higher quality export
+                            }).then(canvas => {
                                 let link = document.createElement('a');
-                                link.download = 'Mockup-Export.png';
+                                link.download = 'LinkSynth-Mockup.png';
                                 link.href = canvas.toDataURL("image/png");
                                 link.click();
                             });
@@ -65,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `);
     };
 
-    // --- CORE ENGINE ---
+    // 4. CORE ENGINE (Dragging & Spawning)
     function spawn(content, type, className) {
         const el = document.createElement(type);
         if (type === 'img') el.src = content; 
@@ -86,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('imageImporter').onchange = (e) => {
         const reader = new FileReader();
-        reader.onload = (f) => spawn(f.target.result, 'img', 'uploaded-img');
+        reader.onload = (f) => spawn(f.target.result, 'img', 'draggable-asset');
         reader.readAsDataURL(e.target.files[0]);
     };
 });
