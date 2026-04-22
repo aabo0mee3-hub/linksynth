@@ -1,85 +1,86 @@
-// Supabase Configuration (Placeholders)
-const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SB_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A'; 
+const sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
 
-// DOM Elements
-const linkInput = document.getElementById('linkInput');
-const assetType = document.getElementById('assetType');
-const addBtn = document.getElementById('addBtn');
-const linkList = document.getElementById('linkList');
-const generateBtn = document.getElementById('generateBtn');
-const canvas = document.getElementById('canvas');
+let activeEl = null;
 
-let repository = [];
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('canvas');
 
-// 1. Initialize: Check Cookies/Local Storage
-window.onload = () => {
-    const savedData = getCookie("repo_session");
-    if (savedData) {
-        repository = JSON.parse(savedData);
-        renderRepository();
-    }
-};
-
-// 2. Add Link Logic
-addBtn.onclick = async () => {
-    const url = linkInput.value;
-    const type = assetType.value;
-    if (!url) return alert("Please enter a URL");
-
-    const entry = { url, type, timestamp: new Date() };
-    repository.push(entry);
-    
-    // Save to Cookies (30 day expiry)
-    setCookie("repo_session", JSON.stringify(repository), 30);
-    
-    // Save to Supabase
-    const { data, error } = await supabase.from('links').insert([entry]);
-    
-    renderRepository();
-    linkInput.value = "";
-};
-
-// 3. Render Repository
-function renderRepository() {
-    linkList.innerHTML = repository.map(item => `
-        <div class="link-card">
-            <strong>${item.type.toUpperCase()}</strong><br>
-            ${item.url}
-        </div>
-    `).join('');
-}
-
-// 4. Generate Prototype Logic
-generateBtn.onclick = () => {
-    canvas.innerHTML = `<h3>Generated Prototype</h3><p>Importing assets...</p>`;
-    
-    repository.forEach(item => {
-        if (item.type === 'theme') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = item.url;
-            canvas.appendChild(link);
-        }
-        if (item.type === 'image') {
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.style.width = "100px";
-            canvas.appendChild(img);
-        }
+    // 1. THEME TOGGLES (Fixed logic)
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.onclick = () => {
+            canvas.className = btn.dataset.mode;
+            console.log("Theme switched to:", btn.dataset.mode);
+        };
     });
-};
 
-// Cookie Helper Functions
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
+    // 2. SHAPE & TEXT TOOLS
+    document.getElementById('addShapeBtn').onclick = () => {
+        const shape = document.getElementById('shapeSelect').value;
+        spawn('', 'div', shape);
+    };
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+    document.getElementById('addTextBtn').onclick = () => {
+        spawn('Edit text', 'div', 'draggable-text');
+    };
+
+    // 3. CLEAR CANVAS
+    document.getElementById('clearCanvasBtn').onclick = () => {
+        if(confirm("Clear current concept?")) canvas.innerHTML = '';
+    };
+
+    // 4. LAUNCH DUMMY PAGE (With Print/Save functionality)
+    document.getElementById('launchDummyBtn').onclick = () => {
+        const win = window.open('', '_blank');
+        const content = canvas.innerHTML;
+        const theme = canvas.className;
+
+        win.document.write(`
+            <html>
+                <head>
+                    <link rel="stylesheet" href="style.css">
+                    <style>
+                        body { padding: 40px; }
+                        .export-tools { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                        @media print { .export-tools { display: none; } }
+                    </style>
+                </head>
+                <body class="${theme}">
+                    <div class="export-tools">
+                        <button onclick="window.print()">📄 Save as PDF / Print</button>
+                        <p><small>Tip: To save as PNG, use a screen capture tool or Right-Click > Save As if available.</small></p>
+                    </div>
+                    <div style="position:relative;">${content}</div>
+                </body>
+            </html>
+        `);
+    };
+
+    // --- CORE ENGINE: SPAWN & DRAG ---
+    function spawn(content, type, className) {
+        const el = document.createElement(type);
+        if (type === 'img') el.src = content; 
+        else { el.innerText = content; el.contentEditable = true; }
+        el.className = `draggable-asset ${className}`;
+        el.style.left = '50px'; el.style.top = '50px';
+        
+        el.onmousedown = () => { activeEl = el; el.style.zIndex = 1000; };
+        canvas.appendChild(el);
+    }
+
+    document.onmousemove = (e) => {
+        if (!activeEl) return;
+        const rect = canvas.getBoundingClientRect();
+        activeEl.style.left = (e.clientX - rect.left - 20) + 'px';
+        activeEl.style.top = (e.clientY - rect.top - 20) + 'px';
+    };
+    document.onmouseup = () => activeEl = null;
+
+    // Image Importer
+    document.getElementById('imageImporter').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (f) => spawn(f.target.result, 'img', 'uploaded-img');
+        reader.readAsDataURL(e.target.files[0]);
+    };
+});
