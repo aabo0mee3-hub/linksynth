@@ -4,28 +4,22 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #334155; }
 .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
 
-/* THEME LOGIC - Applied to body for Export page support */
-body.light, #canvas.light { background: #f8fafc !important; color: #1e293b !important; }
-body.dark, #canvas.dark { background: #0f172a !important; color: #f1f5f9 !important; }
-
-#canvas { 
-    position: relative; min-height: 500px; border-radius: 12px; 
-    border: 2px dashed #475569; overflow: hidden; 
-}
+/* THEME DYNAMICS */
+#canvas { position: relative; min-height: 550px; border-radius: 12px; border: 2px dashed #475569; overflow: hidden; transition: 0.3s; }
+#canvas.light { background: #f8fafc; color: #1e293b; }
+#canvas.dark { background: #0f172a; color: #f1f5f9; border-color: var(--primary); }
 
 /* DRAGGABLE ASSETS */
-.draggable-asset { 
-    position: absolute; cursor: move; z-index: 10; 
-    display: flex; align-items: center; justify-content: center; 
-    text-align: center; overflow: hidden; padding: 10px;
-}
+.draggable-asset { position: absolute; cursor: move; z-index: 10; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; box-sizing: border-box; }
+.shape-rect { width: 180px; height: 110px; background: #94a3b8; border: 1px solid #64748b; }
+.shape-circle { width: 90px; height: 90px; background: #94a3b8; border-radius: 50%; border: 1px solid #64748b; }
 
-.shape-rect { width: 180px; height: 120px; background: #94a3b8; border: 1px solid #64748b; }
-.shape-circle { width: 100px; height: 100px; background: #94a3b8; border-radius: 50%; border: 1px solid #64748b; }
+/* Text & Theme Swapping */
+.draggable-text { min-width: 150px; font-weight: 500; word-wrap: break-word; }
+.dark .draggable-text { color: #ffffff; }
+.light .draggable-text { color: #1e293b; }
 
-/* Dynamic color shifts for shapes */
-.dark .shape-rect, .dark .shape-circle { background: #334155 !important; border-color: var(--primary) !important; color: #fff !important; }
-.light .shape-rect, .light .shape-circle { background: #e2e8f0 !important; color: #1e293b !important; }
+.dark .shape-rect, .dark .shape-circle { background: #334155; border-color: var(--primary); color: white; }
+.light .shape-rect, .light .shape-circle { background: #cbd5e1; border-color: #64748b; color: #1e293b; }
 
-.draggable-text { min-width: 120px; font-weight: 500; cursor: move; }
-img.draggable-asset { padding: 0; border: none; max-width: 300px; }
+img.draggable-asset { max-width: 350px; border-radius: 8px; }
