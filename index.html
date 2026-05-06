@@ -2,49 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LinkSynth | Secure Builder</title>
+    <title>LinkSynth | Professional Wireframer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="auth-overlay" class="overlay">
         <div class="card auth-card">
-            <h2 id="auth-title">Welcome to LinkSynth</h2>
+            <h2>LinkSynth Login</h2>
             <input type="email" id="auth-email" placeholder="Email">
             <input type="password" id="auth-password" placeholder="Password">
             <div class="input-group">
                 <button id="loginBtn">Login</button>
                 <button id="registerBtn" class="secondary">Register</button>
             </div>
-            <p id="auth-msg"></p>
+            <p id="auth-msg" style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;"></p>
         </div>
     </div>
 
     <header>
         <div class="user-bar">
-            <span id="user-display">Not Logged In</span>
-            <button id="logoutBtn" style="display:none">Logout</button>
+            <span id="user-display">Connecting...</span>
+            <button id="logoutBtn" style="display:none; padding: 5px 10px; font-size: 0.7rem;">Logout</button>
         </div>
         <h1>LinkSynth Builder</h1>
     </header>
 
     <main class="container">
-        <section id="input-area" class="card">
-            <h3>Add New Asset Link</h3>
+        <section class="card toolbar">
             <div class="input-group">
-                <input type="text" id="linkInput" placeholder="https://example.com/asset">
-                <select id="assetType">
-                    <option value="theme">Theme/CSS</option>
-                    <option value="image">Image Asset</option>
+                <select id="shapeSelect">
+                    <option value="shape-rect">Section (Box)</option>
+                    <option value="shape-circle">Profile (Circle)</option>
                 </select>
-                <button id="addBtn">Save to Cloud</button>
+                <button id="addShapeBtn">Insert Shape</button>
+                <button id="addTextBtn">Add Text</button>
+                <button onclick="document.getElementById('imgUpload').click()">+ Upload Image</button>
+                <input type="file" id="imgUpload" style="display:none" accept="image/*">
+            </div>
+            <div class="theme-controls">
+                <button class="mode-btn" data-mode="light">Light</button>
+                <button class="mode-btn" data-mode="dark">Dark</button>
+                <button id="saveCloudBtn" style="background: var(--accent);">☁️ Save to Cloud</button>
+                <button id="clearCanvasBtn" style="background: #ef4444;">Clear</button>
             </div>
         </section>
 
-        <section id="canvas-area" class="card">
+        <div id="canvas-container" class="card">
             <div id="canvas" class="light">
-                 <p class="placeholder-text">Your secure wireframes will appear here.</p>
+                 <p class="placeholder-text">Drag assets here to build your secure wireframe.</p>
             </div>
-        </section>
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
