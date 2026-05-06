@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
+const SUPABASE_KEY = 'sb_publishable_muIW1nlyLCYOfIT8Ko4OCA_G8pALwVI';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Auth Elements
