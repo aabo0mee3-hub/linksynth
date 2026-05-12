@@ -1,85 +1,103 @@
-// Supabase Configuration (Placeholders)
-const SUPABASE_URL = 'https://wfpypnlekruafggvhlui.supabase.co';
+const SUPABASE_URL = 'https://your-id.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmcHlwbmxla3J1YWZnZ3ZobHVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDM0MDAsImV4cCI6MjA5MTY3OTQwMH0.KNnMeN05j7Weo-qWbUHjGmHAT7muAHw8i1qytZ5c7-A';
-const db = lib.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// DOM Elements
-const linkInput = document.getElementById('linkInput');
-const assetType = document.getElementById('assetType');
-const addBtn = document.getElementById('addBtn');
-const linkList = document.getElementById('linkList');
-const generateBtn = document.getElementById('generateBtn');
+let activeEl = null;
 const canvas = document.getElementById('canvas');
 
-let repository = [];
-
-// 1. Initialize: Check Cookies/Local Storage
-window.onload = () => {
-    const savedData = getCookie("repo_session");
-    if (savedData) {
-        repository = JSON.parse(savedData);
-        renderRepository();
+// --- 1. AUTH & DATA LOADING ---
+sb.auth.onAuthStateChange((event, session) => {
+    const overlay = document.getElementById('auth-overlay');
+    if (session) {
+        overlay.style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'block';
+        document.getElementById('user-display').innerText = session.user.email;
+        loadUserCanvas(session.user.id);
+    } else {
+        overlay.style.display = 'flex';
     }
-};
+});
 
-// 2. Add Link Logic
-addBtn.onclick = async () => {
-    const url = linkInput.value;
-    const type = assetType.value;
-    if (!url) return alert("Please enter a URL");
-
-    const entry = { url, type, timestamp: new Date() };
-    repository.push(entry);
-    
-    // Save to Cookies (30 day expiry)
-    setCookie("repo_session", JSON.stringify(repository), 30);
-    
-    // Save to Supabase
-    const { data, error } = await supabase.from('links').insert([entry]);
-    
-    renderRepository();
-    linkInput.value = "";
-};
-
-// 3. Render Repository
-function renderRepository() {
-    linkList.innerHTML = repository.map(item => `
-        <div class="link-card">
-            <strong>${item.type.toUpperCase()}</strong><br>
-            ${item.url}
-        </div>
-    `).join('');
+async function loadUserCanvas(userId) {
+    const { data } = await sb.from('links').select('*').eq('user_id', userId);
+    if (data) renderCanvas(data); // Fixed ReferenceError
 }
 
-// 4. Generate Prototype Logic
-generateBtn.onclick = () => {
-    canvas.innerHTML = `<h3>Generated Prototype</h3><p>Importing assets...</p>`;
+function renderCanvas(dataArray) {
+    canvas.innerHTML = '';
+    dataArray.forEach(item => {
+        spawn(item.content, item.asset_type === 'image' ? 'img' : 'div', item.class_name, item.pos_x, item.pos_y);
+    });
+}
+
+// --- 2. CANVAS ENGINE ---
+function spawn(content, type, className, x = 50, y = 50) {
+    const el = document.createElement(type);
+    if (type === 'img') el.src = content;
+    else { el.innerText = content; el.contentEditable = true; }
     
-    repository.forEach(item => {
-        if (item.type === 'theme') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = item.url;
-            canvas.appendChild(link);
-        }
-        if (item.type === 'image') {
-            const img = document.createElement('img');
-            img.src = item.url;
-            img.style.width = "100px";
-            canvas.appendChild(img);
-        }
+    el.className = `draggable ${className}`;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    
+    el.onmousedown = (e) => { activeEl = el; el.style.zIndex = 1000; };
+    canvas.appendChild(el);
+}
+
+// Draggable Logic
+document.onmousemove = (e) => {
+    if (!activeEl) return;
+    const rect = canvas.getBoundingClientRect();
+    activeEl.style.left = (e.clientX - rect.left - 25) + 'px';
+    activeEl.style.top = (e.clientY - rect.top - 25) + 'px';
+};
+document.onmouseup = () => activeEl = null;
+
+// --- 3. UI ACTIONS ---
+document.getElementById('addShapeBtn').onclick = () => spawn('', 'div', document.getElementById('shapeSelect').value);
+document.getElementById('addTextBtn').onclick = () => spawn('New Text Box', 'div', 'text-box');
+
+document.getElementById('imgUpload').onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = (event) => spawn(event.target.result, 'img', 'uploaded-img');
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.onclick = () => canvas.className = btn.dataset.mode;
+});
+
+// --- 4. CLOUD SAVE & EXPORT ---
+document.getElementById('saveCloudBtn').onclick = async () => {
+    const user = (await sb.auth.getUser()).data.user;
+    await sb.from('links').delete().eq('user_id', user.id); // Clear old
+    
+    const assets = Array.from(document.querySelectorAll('.draggable')).map(el => ({
+        user_id: user.id,
+        content: el.tagName === 'IMG' ? el.src : el.innerText,
+        asset_type: el.tagName === 'IMG' ? 'image' : 'shape',
+        class_name: el.className.replace('draggable ', ''),
+        pos_x: parseInt(el.style.left),
+        pos_y: parseInt(el.style.top)
+    }));
+    
+    await sb.from('links').insert(assets);
+    alert("Saved to Cloud!");
+};
+
+document.getElementById('exportPngBtn').onclick = () => {
+    html2canvas(canvas).then(c => {
+        const link = document.createElement('a');
+        link.download = 'linksynth-snapshot.png';
+        link.href = c.toDataURL();
+        link.click();
     });
 };
 
-// Cookie Helper Functions
-function setCookie(name, value, days) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+// Auth buttons
+document.getElementById('loginBtn').onclick = async () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) alert(error.message);
+};
